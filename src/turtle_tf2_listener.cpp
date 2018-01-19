@@ -25,15 +25,25 @@ int main(int argc, char** argv){
     ros::Rate rate(10.0);
     while(node.ok()){
         geometry_msgs::TransformStamped transformStamped;
+        /***
         try{
-            transformStamped = tfBuffer.lookupTransform("turtle2", "carrot1", ros::Time(0));
+            transformStamped = tfBuffer.lookupTransform("turtle2", "carrot", ros::Time::now());
         }
         catch(tf2::TransformException &ex){
-            ROS_WARN("%s", ex.what());
+            ROS_WARN("Could NOT transform turtle2 to turtle1: %s", ex.what());
             ros::Duration(1.0).sleep();
             continue;
         }
-
+        ***/
+        try{
+            ros::Time past = ros::Time::now() - ros::Duration(5.0);
+            transformStamped = tfBuffer.lookupTransform("turtle2","turtle1",past,ros::Duration(1.0));
+        }
+        catch(tf2::TransformException &ex){
+            ROS_WARN("Could NOT transform turtle2 to turtle1: %s", ex.what());
+            ros::Duration(1.0).sleep();
+            continue;
+        }
         geometry_msgs::Twist vel_msg;
 
         vel_msg.angular.z = 4.0 * atan2(transformStamped.transform.translation.y,transformStamped.transform.translation.x);
